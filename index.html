@@ -337,38 +337,91 @@
             </div>
           </div>
 
-          <div class="form">
-            <h3>Ask us to call you back</h3>
+          <div class="form" id="formwrap">
+            <h3>Ask for a call back</h3>
             <p class="sub">
               Fill this in and we'll ring you, usually the same day.
             </p>
 
-            <div class="field">
-              <label for="cname">Your name</label>
-              <input id="cname" type="text" autocomplete="name" />
-            </div>
-            <div class="field">
-              <label for="ctel">Phone number</label>
-              <input id="ctel" type="tel" autocomplete="tel" />
-            </div>
-            <div class="field">
-              <label for="cmsg">What's the trouble?</label>
-              <textarea
-                id="cmsg"
-                placeholder="My laptop keeps turning itself off."
-              ></textarea>
-            </div>
+            <form id="callback" novalidate>
+              <div class="field">
+                <label for="cname">Your name</label>
+                <input id="cname" name="name" type="text" autocomplete="name" />
+              </div>
 
-            <button class="send" type="button" id="send">
-              Send this to us
-            </button>
-            <p class="err" id="err">
-              Please add a phone number so we know where to ring you.
-            </p>
+              <div class="field">
+                <label for="ctel">Phone number</label>
+                <input
+                  id="ctel"
+                  name="phone"
+                  type="tel"
+                  inputmode="numeric"
+                  autocomplete="tel"
+                  aria-describedby="ctel-hint ctel-err"
+                />
+                <p class="hint" id="ctel-hint">
+                  Numbers only, for example 07700 900123
+                </p>
+                <p class="fielderr" id="ctel-err"></p>
+              </div>
+
+              <div class="field">
+                <label for="cmail">
+                  Email <span class="opt">(optional)</span>
+                </label>
+                <input
+                  id="cmail"
+                  name="email"
+                  type="email"
+                  autocomplete="email"
+                  aria-describedby="cmail-err"
+                />
+                <p class="fielderr" id="cmail-err"></p>
+              </div>
+
+              <div class="field">
+                <label for="cmsg">What's the trouble?</label>
+                <textarea
+                  id="cmsg"
+                  name="message"
+                  placeholder="My laptop keeps turning itself off."
+                ></textarea>
+              </div>
+
+              <label class="hp" aria-hidden="true">
+                Leave this empty
+                <input type="checkbox" name="botcheck" tabindex="-1" />
+              </label>
+
+              <button class="send" type="submit" id="send">
+                Request a call back
+              </button>
+
+              <p
+                class="status"
+                id="status"
+                role="status"
+                aria-live="polite"
+              ></p>
+            </form>
+
             <p class="note">
-              This opens your own email so you can send it. If you'd rather just
-              talk to someone, ring the number on the left.
+              We only use your number to ring you back about this. If you'd
+              rather just talk to someone now, ring the number on the left.
             </p>
+
+            <div class="sent" id="sent" tabindex="-1">
+              <div class="tick" aria-hidden="true">&#10003;</div>
+              <h3>That's come through</h3>
+              <p>
+                Thanks — your request is with us. We'll ring you back, usually
+                the same day and always within one working day.
+              </p>
+              <p class="sent-tel">
+                Need us sooner? Ring
+                <a href="tel:+441134960000">0113 496 0000</a>.
+              </p>
+            </div>
           </div>
         </div>
       </section>
@@ -385,31 +438,146 @@
     </footer>
 
     <script>
-      document.getElementById("send").addEventListener("click", function () {
-        var name = document.getElementById("cname").value.trim();
-        var tel = document.getElementById("ctel").value.trim();
-        var msg = document.getElementById("cmsg").value.trim();
-        var err = document.getElementById("err");
+      // Paste the access key Web3Forms emails you, between the quotes below.
+      var ACCESS_KEY = "PASTE-YOUR-ACCESS-KEY-HERE";
+
+      // Any UK number: 10 or 11 digits starting 0, or the +44 form.
+      // To accept mobiles only, swap this for:  /^(07\d{9}|447\d{9})$/
+      var PHONE_OK = /^(0\d{9,10}|44\d{9,10})$/;
+      var EMAIL_OK = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+      var form = document.getElementById("callback");
+      var wrap = document.getElementById("formwrap");
+      var btn = document.getElementById("send");
+      var statusEl = document.getElementById("status");
+      var telInput = document.getElementById("ctel");
+      var mailInput = document.getElementById("cmail");
+
+      // Strip anything that isn't a digit, space or a leading +, as they type.
+      telInput.addEventListener("input", function () {
+        var cleaned = telInput.value.replace(/[^0-9+ ]/g, "");
+        cleaned = cleaned.charAt(0) + cleaned.slice(1).replace(/\+/g, "");
+        if (cleaned !== telInput.value) telInput.value = cleaned;
+        clearError(telInput, "ctel-err");
+      });
+
+      mailInput.addEventListener("input", function () {
+        clearError(mailInput, "cmail-err");
+      });
+
+      function digitsOnly(value) {
+        return value.replace(/[^0-9]/g, "");
+      }
+
+      function setError(input, errId, message) {
+        document.getElementById(errId).textContent = message;
+        document.getElementById(errId).classList.add("show");
+        input.setAttribute("aria-invalid", "true");
+        input.classList.add("bad");
+      }
+
+      function clearError(input, errId) {
+        document.getElementById(errId).classList.remove("show");
+        input.removeAttribute("aria-invalid");
+        input.classList.remove("bad");
+      }
+
+      function showStatus(text, isError) {
+        statusEl.textContent = text;
+        statusEl.className = isError ? "status show bad" : "status";
+      }
+
+      form.addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        var firstBad = null;
+        var tel = digitsOnly(telInput.value);
+        var mail = mailInput.value.trim();
+
+        clearError(telInput, "ctel-err");
+        clearError(mailInput, "cmail-err");
+        showStatus("", false);
 
         if (!tel) {
-          err.style.display = "block";
-          document.getElementById("ctel").focus();
+          setError(
+            telInput,
+            "ctel-err",
+            "Please add a phone number so we know where to ring you.",
+          );
+          firstBad = firstBad || telInput;
+        } else if (!PHONE_OK.test(tel)) {
+          setError(
+            telInput,
+            "ctel-err",
+            "That doesn't look like a full UK number. It should be 11 digits, starting with a 0.",
+          );
+          firstBad = firstBad || telInput;
+        }
+
+        if (mail && !EMAIL_OK.test(mail)) {
+          setError(
+            mailInput,
+            "cmail-err",
+            "That email address is missing an @ symbol or looks incomplete.",
+          );
+          firstBad = firstBad || mailInput;
+        }
+
+        if (firstBad) {
+          firstBad.focus();
           return;
         }
-        err.style.display = "none";
 
-        var body =
-          (msg || "Please could you give me a call.") +
-          "\n\n" +
-          (name ? name + "\n" : "") +
-          tel;
+        if (ACCESS_KEY.indexOf("PASTE") === 0) {
+          showStatus(
+            "This form isn't connected yet. Please ring us instead.",
+            true,
+          );
+          return;
+        }
 
-        window.location.href =
-          "mailto:hello@Otleycomputerhelp.co.uk" +
-          "?subject=" +
-          encodeURIComponent("Callback please" + (name ? " — " + name : "")) +
-          "&body=" +
-          encodeURIComponent(body);
+        btn.disabled = true;
+        btn.textContent = "Sending\u2026";
+
+        var payload = {
+          access_key: ACCESS_KEY,
+          subject: "Call back request from the website",
+          from_name: "Otley Computer Help website",
+          name: document.getElementById("cname").value.trim() || "Not given",
+          phone: telInput.value.trim(),
+          email: mail || "Not given",
+          message:
+            document.getElementById("cmsg").value.trim() || "No details given.",
+          botcheck: form.botcheck.checked,
+        };
+
+        fetch("https://api.web3forms.com/submit", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body: JSON.stringify(payload),
+        })
+          .then(function (res) {
+            return res.json();
+          })
+          .then(function (data) {
+            if (data.success) {
+              wrap.classList.add("is-sent");
+              document.getElementById("sent").focus();
+            } else {
+              throw new Error(data.message || "Failed");
+            }
+          })
+          .catch(function () {
+            btn.disabled = false;
+            btn.textContent = "Request a call back";
+            showStatus(
+              "Sorry, that didn't go through. Please ring 0113 496 0000 and we'll sort it out.",
+              true,
+            );
+          });
       });
     </script>
   </body>
