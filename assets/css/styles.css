@@ -191,3 +191,55 @@ h1,h2,h3{font-family:var(--serif);font-weight:500;line-height:1.12;letter-spacin
 .sent h3 { font-size: 1.6rem; font-weight: 600 }
 .sent p { margin-top: .6rem; font-size: 1.1rem; color: var(--muted) }
 .sent .sent-tel a { color: var(--green); font-weight: 600 }
+/* ---------- call back form: states and validation ---------- */
+/* Append to the end of assets/css/styles.css.
+   If you already pasted the earlier version of this block, replace it
+   with this one — it supersedes it. */
+
+.form form { margin: 0 }
+
+.send:disabled { opacity: .55; cursor: default }
+
+/* hidden spam trap — must stay off screen, not display:none */
+.hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden }
+
+/* optional-field marker and helper text under an input */
+.field .opt { color: var(--muted); font-weight: 400 }
+.field .hint { margin-top: .1rem; font-size: 1rem; color: var(--muted); line-height: 1.4 }
+
+/* inline errors, shown only when a field fails */
+.fielderr {
+  display: none;
+  margin-top: .25rem;
+  font-size: 1.02rem;
+  line-height: 1.45;
+  color: #8A3312;
+}
+.fielderr.show { display: block }
+.field input.bad,
+.field input.bad:focus { border-color: #8A3312 }
+
+/* whole-form status line, used for sending errors */
+.status { display: none; margin-top: 1rem; font-size: 1.05rem; line-height: 1.55 }
+.status.show { display: block }
+.status.bad { color: #8A3312 }
+
+/* confirmation, shown in place of the form once it has sent */
+.sent { display: none }
+.sent:focus { outline: none }
+.form.is-sent > h3,
+.form.is-sent > .sub,
+.form.is-sent > form,
+.form.is-sent > .note { display: none }
+.form.is-sent .sent { display: block }
+
+.sent .tick {
+  width: 3rem; height: 3rem; border-radius: 50%;
+  background: var(--green); color: #fff;
+  display: grid; place-items: center;
+  font-size: 1.5rem; line-height: 1;
+  margin-bottom: 1.1rem;
+}
+.sent h3 { font-size: 1.6rem; font-weight: 600 }
+.sent p { margin-top: .6rem; font-size: 1.1rem; color: var(--muted) }
+.sent .sent-tel a { color: var(--green); font-weight: 600 }

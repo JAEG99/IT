@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Otley Computer Help — friendly tech help at home</title>
+    <title>Chevin Works — friendly computer help in Otley</title>
     <meta
       name="description"
       content="Patient, plain-English help with computers, phones, tablets, printers and Wi-Fi. Home visits and drop-in repairs. Fixed prices, no jargon."
@@ -15,13 +15,27 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="assets/css/styles.css" />
+
+    <link rel="icon" href="assets/img/favicon.ico" sizes="any" />
+    <link rel="icon" href="assets/img/favicon-16.png" type="image/png" sizes="16x16" />
+    <link rel="icon" href="assets/img/favicon-32.png" type="image/png" sizes="32x32" />
+    <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png" />
+    <link rel="manifest" href="site.webmanifest" />
+    <meta name="theme-color" content="#F4EFE7" />
   </head>
   <body>
     <a class="skip" href="#main">Skip to content</a>
 
     <header class="masthead">
       <div class="wrap">
-        <a class="brand" href="#">Chevin <span>Works</span></a>
+        <a class="brand" href="#">
+          <img
+            src="assets/img/logo.png"
+            alt="Chevin Works"
+            width="419"
+            height="75"
+          />
+        </a>
         <p class="head-tel">
           <span class="label">Call us</span
           ><a href="tel:+441134960000">0113 496 0000</a>
@@ -324,8 +338,8 @@
               </p>
               <p>
                 <b>Email</b
-                ><a href="mailto:hello@Otleycomputerhelp.co.uk"
-                  >info@Chevinworks.co.uk</a
+                ><a href="mailto:info@chevinworks.co.uk"
+                  >info@chevinworks.co.uk</a
                 >
               </p>
             </div>
@@ -423,7 +437,15 @@
 
     <footer class="foot">
       <div class="wrap">
-        <span>Chevin Works — home visits across Otley</span>
+        <span class="foot-brand">
+          <img
+            src="assets/img/logo-light.png"
+            alt="Chevin Works"
+            width="279"
+            height="50"
+          />
+          <span>Computer help across Otley</span>
+        </span>
         <span><a href="tel:+441134960000">0113 496 0000</a></span>
       </div>
     </footer>
@@ -533,7 +555,7 @@
         var payload = {
           access_key: ACCESS_KEY,
           subject: "Call back request from the website",
-          from_name: "Otley Computer Help website",
+          from_name: "Chevin Works website",
           name: document.getElementById("cname").value.trim() || "Not given",
           phone: telInput.value.trim(),
           email: mail || "Not given",
